@@ -1,11 +1,8 @@
-// === Final: Preserves working AT-dial sequence, adds gentle network-retry ===
-
-#define BLYNK_TEMPLATE_ID ""
-#define BLYNK_TEMPLATE_NAME ""
-#define BLYNK_AUTH_TOKEN ""
+#define BLYNK_TEMPLATE_ID "TMPL6GEsuyvV9"
+#define BLYNK_TEMPLATE_NAME "IoT based fall detection device 2 "
+#define BLYNK_AUTH_TOKEN "c7A6TuwpCKvZmav_jFymWRL4A0CrzC-X"
 
 #define BLYNK_PRINT Serial
-
 #include <Wire.h>
 #include <WiFi.h>
 #include <WiFiClient.h>
@@ -23,8 +20,8 @@
 #define BLYNK_PORT 80
 
 char auth[] = BLYNK_AUTH_TOKEN;
-char ssid[] = "";
-char pass[] = "";
+char ssid[] = "Utso123";
+char pass[] = "12345678";
 
 Adafruit_MPU6050 mpu;
 BlynkTimer timer;
@@ -34,17 +31,17 @@ const unsigned long SENSOR_INTERVAL_MS = 200;
 const uint8_t MPU_ADDR = 0x68;
 bool mpuInitialized = false;
 
-const char emergencyNumber[] = "+8801765660982"; // keep + or use 017... if you prefer
-const float FALL_THRESHOLD = 10.0; // g force magnitude threshold (tune if needed)
+const char emergencyNumber[] = "+8801306270430"; // calling number
+const float FALL_THRESHOLD = 11.0; // g force magnitude threshold 
 
-// Call state machine (keep simple)
+// Call state machine 
 enum CallState { CALL_IDLE, CALL_DIALING, CALL_COOLDOWN };
 CallState callState = CALL_IDLE;
 
 bool callingInProgress = false;
 unsigned long callStateTimestamp = 0;
-const unsigned long DIAL_DURATION_MS = 30000; // ring for 30s
-const unsigned long COOLDOWN_MS = 20000;      // wait 20s before next attempt
+const unsigned long DIAL_DURATION_MS = 30000; // Ringing time
+const unsigned long COOLDOWN_MS = 20000;      // cool down time
 
 // ---------- Helpers ----------
 String readSIM900(unsigned long timeout_ms) {
@@ -55,7 +52,7 @@ String readSIM900(unsigned long timeout_ms) {
       char c = (char)SIM900.read();
       Serial.write(c);
       resp += c;
-      start = millis(); // extend timeout while receiving
+      start = millis();
     }
     delay(5);
   }
@@ -68,7 +65,6 @@ void simSend(const char* cmd) {
   SIM900.println(cmd);
 }
 
-// quick network check (few retries) — non-invasive; returns true if looks ok
 bool ensureNetworkQuick(int retries = 3, unsigned long waitMs = 1000) {
   for (int i = 0; i < retries; ++i) {
     Serial.printf("ensureNetworkQuick: attempt %d/%d\n", i+1, retries);
@@ -86,10 +82,10 @@ bool ensureNetworkQuick(int retries = 3, unsigned long waitMs = 1000) {
           val.trim();
           int rssi = val.toInt();
           Serial.printf("CSQ rssi=%d\n", rssi);
-          if (rssi != 99 && rssi >= 6) return true; // >=6 treat as acceptable
+          if (rssi != 99 && rssi >= 6) return true; 
           else Serial.println("Signal low; trying again.");
         } else {
-          return true; // no parse but registered
+          return true; 
         }
       } else {
         return true; // registered and no CSQ parse — accept
@@ -134,7 +130,7 @@ void startDialSimple(const char* number) {
     return;
   }
 
-  // EXACT working commands & timing (as your simple working test)
+  // EXACT working commands & timing 
   SIM900.println("AT");
   delay(1000);
   SIM900.println("AT+CREG?");
